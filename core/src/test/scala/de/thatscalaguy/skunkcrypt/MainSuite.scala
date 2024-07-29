@@ -64,29 +64,30 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
   test("Main should exit succesfully") {
     withContainers { case database: GenericContainer =>
       implicit val c = CryptContext
-        .keyFromHex(
+        .keysFromHex(
+          "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef",
           "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef"
         )
         .get
       session(database.container.getMappedPort(5432))
         .use { session =>
           for {
+            // _ <- session.execute(
+            //   sql"INSERT INTO test (string, numbers) VALUES (${text}, ${crypt.int4})".command
+            // )("hpc3AZ+t1m7mDBf2.e11YUVCQUkPdytj441OjImPhnElN+wSOLL7liXcB+TeRbrsESuGdidbndfu3", 123)
             _ <- session.execute(
-              sql"INSERT INTO test (string, numbers) VALUES (${crypt.text}, ${crypt.int4})".command
-            )("Hello", 123)
-            _ <- session.execute(
-              sql"INSERT INTO test (string, numbers) VALUES (${crypt.text}, ${crypt.int4})".command
+              sql"INSERT INTO test (string, numbers) VALUES (${cryptd.text}, ${cryptd.int4})".command
             )("Hello", 123)
             _ <- session
               .execute(
-                sql"SELECT * FROM test".query(text ~ text)
+                sql"SELECT * FROM test".query(cryptd.text ~ text)
               )
               .map(_.foreach(println))
 
             _ <- session
               .execute(
                 sql"SELECT * FROM test"
-                  .query(crypt.text ~ crypt.int4)
+                  .query(cryptd.text ~ cryptd.int4)
               )
               .map(_.foreach(println))
           } yield ()

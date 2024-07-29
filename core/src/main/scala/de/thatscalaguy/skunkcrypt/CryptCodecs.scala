@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec
 import java.security.SecureRandom
 import javax.crypto.spec.GCMParameterSpec
 
-final case class CryptContext(secretKey: SecretKey)
+final case class CryptContext(secretKeys: Array[SecretKey])
 
 object CryptContext {
   def keyFromHex(hexString: String): Option[CryptContext] =
@@ -21,13 +21,53 @@ object CryptContext {
         hexString.sliding(2, 2).toArray.map(Integer.parseInt(_, 16).toByte),
         "AES"
       )
-    }.toOption.map(CryptContext.apply)
+    }.toOption.map(key => CryptContext(Array(key)))
+
+  def keysFromHex(hexStrings: String*): Option[CryptContext] = {
+    val keys = hexStrings.map(hex => keyFromHex(hex))
+    keys.reduceLeft { (acc, key) =>
+      for {
+        a <- acc
+        k <- key
+      } yield CryptContext(a.secretKeys ++ k.secretKeys)
+    }
+  }
 }
 
 trait CryptCodecs {
+  val GCM_IV_LENGTH = 12
+  val GCM_TAG_LENGTH = 16
 
   private[skunkcrypt] def encrypt(implicit c: CryptContext): String => String
   private[skunkcrypt] def decrypt(implicit c: CryptContext): String => String
+
+  private[skunkcrypt] def genEncrypt(
+      iv: Array[Byte],
+      secretKeys: Array[SecretKey],
+      value: String
+  ) = {
+    val secretKey = secretKeys.last
+    val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec)
+    val encryptedBytes = cipher.doFinal(value.getBytes())
+    Base64.getEncoder.encodeToString(
+      iv
+    ) + "." + (secretKeys.length - 1) + "." + Base64.getEncoder
+      .encodeToString(encryptedBytes)
+  }
+
+  private[skunkcrypt] def genDecrypt(
+      iv: Array[Byte],
+      secretKey: SecretKey,
+      encrypted: String
+  ) = {
+    val encryptedBytes = Base64.getDecoder.decode(encrypted)
+    val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
+    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
+    new String(cipher.doFinal(encryptedBytes))
+  }
 
   def text(implicit c: CryptContext): Codec[String] =
     Codec.simple(
@@ -70,57 +110,36 @@ trait CryptCodecs {
 
 object crypt extends CryptCodecs {
   private val random = new SecureRandom()
-  private val GCM_TAG_LENGTH = 16
-  private val GCM_IV_LENGTH = 12
 
   def encrypt(implicit c: CryptContext) = value => {
     val iv = new Array[Byte](GCM_IV_LENGTH)
     random.nextBytes(iv)
-    val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
-    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    cipher.init(Cipher.ENCRYPT_MODE, c.secretKey, ivSpec)
-    val encryptedBytes = cipher.doFinal(value.getBytes())
-    Base64.getEncoder.encodeToString(iv) + "." + Base64.getEncoder
-      .encodeToString(encryptedBytes)
+    genEncrypt(iv, c.secretKeys, value)
   }
 
   def decrypt(implicit c: CryptContext) = value =>
     value.split("\\.").toList match {
-      case iv :: encrypted :: Nil =>
+      case iv :: keyIndex :: encrypted :: Nil =>
         val ivBytes = Base64.getDecoder.decode(iv)
-        val encryptedBytes = Base64.getDecoder.decode(encrypted)
-        val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, ivBytes)
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, c.secretKey, ivSpec)
-        new String(cipher.doFinal(encryptedBytes))
+        val secretKey = c.secretKeys(keyIndex.toInt)
+        genDecrypt(ivBytes, secretKey, encrypted)
       case _ => throw new Exception("Invalid input")
     }
 }
 
 object cryptd extends CryptCodecs {
-  private val GCM_TAG_LENGTH = 16
-  private val GCM_IV_LENGTH = 12
 
   def encrypt(implicit c: CryptContext) = value => {
     val iv = new Array[Byte](GCM_IV_LENGTH)
-
-    val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
-    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    cipher.init(Cipher.ENCRYPT_MODE, c.secretKey, ivSpec)
-    val encryptedBytes = cipher.doFinal(value.getBytes())
-    Base64.getEncoder.encodeToString(iv) + "." + Base64.getEncoder
-      .encodeToString(encryptedBytes)
+    genEncrypt(iv, c.secretKeys, value)
   }
 
   def decrypt(implicit c: CryptContext) = value =>
     value.split("\\.").toList match {
-      case iv :: encrypted :: Nil =>
+      case iv :: keyIndex :: encrypted :: Nil =>
         val ivBytes = Base64.getDecoder.decode(iv)
-        val encryptedBytes = Base64.getDecoder.decode(encrypted)
-        val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, ivBytes)
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(Cipher.DECRYPT_MODE, c.secretKey, ivSpec)
-        new String(cipher.doFinal(encryptedBytes))
+        val secretKey = c.secretKeys(keyIndex.toInt)
+        genDecrypt(ivBytes, secretKey, encrypted)
       case _ => throw new Exception("Invalid input")
     }
 }
