@@ -1,16 +1,33 @@
+/*
+ * Copyright 2024 ThatScalaGuy
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package de.thatscalaguy.skunkcrypt
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import skunk.Codec
-import skunk.data.Type
-import java.util.Base64
 import skunk.codec.numeric.safe
-import javax.crypto.SecretKey
-import javax.crypto.Cipher
-import scala.util.Try
-import javax.crypto.spec.SecretKeySpec
+import skunk.data.Type
+
 import java.security.SecureRandom
+import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
+import scala.util.Try
 
 final case class CryptContext(secretKeys: Array[SecretKey])
 

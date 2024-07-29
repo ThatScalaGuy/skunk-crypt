@@ -16,19 +16,19 @@
 
 package de.thatscalaguy.skunkcrypt
 
-import munit.CatsEffectSuite
-import com.dimafeng.testcontainers.GenericContainer
-import org.testcontainers.containers.wait.strategy.Wait
-import com.dimafeng.testcontainers.munit.TestContainerForAll
-import skunk.Session
+import cats.effect.*
 import cats.effect.IO
-import skunk.SSL
-import org.typelevel.otel4s.trace.Tracer.Implicits.noop
-import cats.effect._
-import skunk._
-import skunk.implicits._
-import skunk.codec.all._
+import com.dimafeng.testcontainers.GenericContainer
+import com.dimafeng.testcontainers.munit.TestContainerForAll
 import de.thatscalaguy.skunkcrypt.crypt
+import munit.CatsEffectSuite
+import org.testcontainers.containers.wait.strategy.Wait
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
+import skunk.*
+import skunk.SSL
+import skunk.Session
+import skunk.codec.all.*
+import skunk.implicits.*
 
 class MainSuite extends CatsEffectSuite with TestContainerForAll {
 
