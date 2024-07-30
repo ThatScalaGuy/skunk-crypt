@@ -38,4 +38,14 @@ lazy val core = project
     )
   )
 
-lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
+lazy val docs = project
+  .in(file("site"))
+  .enablePlugins(TypelevelSitePlugin)
+  .settings(tlSiteHelium ~= {
+    import laika.helium.config._
+    import laika.ast.Path.Root
+    _.site
+      .topNavigationBar(
+        homeLink = IconLink.internal(Root / "index.md", HeliumIcon.home)
+      )
+  })
