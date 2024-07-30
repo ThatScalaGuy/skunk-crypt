@@ -26,30 +26,6 @@ import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.SecretKeySpec
-import scala.util.Try
-
-final case class CryptContext(secretKeys: Array[SecretKey])
-
-object CryptContext {
-  def keyFromHex(hexString: String): Option[CryptContext] =
-    Try {
-      new SecretKeySpec(
-        hexString.sliding(2, 2).toArray.map(Integer.parseInt(_, 16).toByte),
-        "AES"
-      )
-    }.toOption.map(key => CryptContext(Array(key)))
-
-  def keysFromHex(hexStrings: String*): Option[CryptContext] = {
-    val keys = hexStrings.map(hex => keyFromHex(hex))
-    keys.reduceLeft { (acc, key) =>
-      for {
-        a <- acc
-        k <- key
-      } yield CryptContext(a.secretKeys ++ k.secretKeys)
-    }
-  }
-}
 
 trait CryptCodecs {
   val GCM_IV_LENGTH = 12
