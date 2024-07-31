@@ -17,8 +17,13 @@ ThisBuild / tlSonatypeUseLegacyHost := false
 ThisBuild / tlSitePublishBranch := Some("main")
 
 val Scala213 = "2.13.14"
-ThisBuild / crossScalaVersions := Seq(Scala213, "3.3.3")
-ThisBuild / scalaVersion := Scala213 // the default Scala
+val Scala3 = "3.3.3"
+
+ThisBuild / crossScalaVersions := Seq(Scala213, Scala3)
+ThisBuild / scalaVersion := Scala3 // the default Scala
+
+Test / fork := true
+Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat
 
 lazy val root = (project in file("."))
   .enablePlugins(NoPublishPlugin)
