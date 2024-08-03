@@ -27,19 +27,29 @@ Test / classLoaderLayeringStrategy := ClassLoaderLayeringStrategy.Flat
 
 lazy val root = (project in file("."))
   .enablePlugins(NoPublishPlugin)
-  .aggregate(core)
+  .aggregate(core, circe)
 
 lazy val core = project
   .in(file("core"))
   .settings(
     name := "skunk-crypt",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % "2.12.0",
-      "org.typelevel" %% "cats-effect" % "3.5.4",
-      "org.tpolecat" %% "skunk-core" % "1.0.0-M7",
+      "org.tpolecat" %% "skunk-core" % "1.0.0-M7" % "provided",
       "org.scalameta" %% "munit" % "1.0.0" % Test,
       "org.typelevel" %% "munit-cats-effect" % "2.0.0" % Test,
       "com.dimafeng" %% "testcontainers-scala-munit" % "0.41.4" % Test
+    )
+  )
+
+lazy val circe = project
+  .in(file("circe"))
+  .dependsOn(core)
+  .settings(
+    name := "skunk-crypt-circe",
+    libraryDependencies ++= Seq(
+      "org.tpolecat" %% "skunk-core" % "1.0.0-M7" % "provided",
+      "io.circe" %% "circe-core" % "0.14.9" % "provided",
+      "io.circe" %% "circe-parser" % "0.14.9" % "provided"
     )
   )
 

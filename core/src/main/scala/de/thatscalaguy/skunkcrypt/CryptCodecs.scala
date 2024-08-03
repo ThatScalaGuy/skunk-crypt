@@ -61,7 +61,10 @@ trait CryptCodecs {
     cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
     new String(cipher.doFinal(encryptedBytes))
   }
+}
 
+private[skunkcrypt] trait Base {
+  self: CryptCodecs =>
   def text(implicit c: CryptContext): Codec[String] =
     Codec.simple(
       v => encrypt(c)(v.toString),
@@ -101,7 +104,7 @@ trait CryptCodecs {
   )
 }
 
-object crypt extends CryptCodecs {
+object crypt extends CryptCodecs with Base {
   private val random = new SecureRandom()
 
   def encrypt(implicit c: CryptContext) = value => {
@@ -120,7 +123,7 @@ object crypt extends CryptCodecs {
     }
 }
 
-object cryptd extends CryptCodecs {
+object cryptd extends CryptCodecs with Base {
 
   def encrypt(implicit c: CryptContext) = value => {
     val iv = new Array[Byte](GCM_IV_LENGTH)
