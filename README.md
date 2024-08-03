@@ -42,3 +42,13 @@ session.execute(
     sql"SELECT * FROM test".query(crypt.text ~ crypt.int4)
 )
 ```
+
+All columns intended for storing encrypted data must be of type `TEXT` in the database.
+
+e.g.:
+```sql
+CREATE TABLE test (
+    string TEXT,
+    numbers TEXT
+)
+```
