@@ -78,7 +78,7 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
             // )("hpc3AZ+t1m7mDBf2.e11YUVCQUkPdytj441OjImPhnElN+wSOLL7liXcB+TeRbrsESuGdidbndfu3", 123)
             _ <- session.execute(
               sql"INSERT INTO test (string, numbers) VALUES (${cryptd.text}, ${cryptd.int4})".command
-            )("Hello", 123)
+            )(("Hello", 123))
             _ <- session
               .execute(
                 sql"SELECT * FROM test".query(cryptd.text ~ text)
