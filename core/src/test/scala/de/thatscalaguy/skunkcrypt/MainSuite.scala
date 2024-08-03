@@ -49,8 +49,10 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
     )
 
   override def afterContainersStart(containers: Containers): Unit = {
-    
-    session(containers.asInstanceOf[GenericContainer].container.getMappedPort(5432))
+
+    session(
+      containers.asInstanceOf[GenericContainer].container.getMappedPort(5432)
+    )
       .use { session =>
         session.execute(
           sql"CREATE TABLE test (string TEXT, numbers TEXT)".command
@@ -59,8 +61,6 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
       .void
       .unsafeRunSync()
   }
-
-
 
   test("Main should exit succesfully") {
     withContainers { case database: GenericContainer =>
