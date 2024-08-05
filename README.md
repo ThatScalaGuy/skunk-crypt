@@ -13,7 +13,7 @@ The library is based depend on the latest 1.0 version of the Skunk library.
 1.) Add the dependency to your project:
 
 ```scala
-libraryDependencies += "de.thatscalaguy" %% "skunk-crypt" % "0.0.0"
+libraryDependencies += "de.thatscalaguy" %% "skunk-crypt" % "0.0.1"
 ```
 
 2.) Create a implicit CryptContext object with the keys you want to use.
