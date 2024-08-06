@@ -22,11 +22,10 @@ import com.dimafeng.testcontainers.GenericContainer
 import com.dimafeng.testcontainers.munit.TestContainerForAll
 import munit.CatsEffectSuite
 import org.testcontainers.containers.wait.strategy.Wait
+import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 import skunk._
 import skunk.codec.all._
 import skunk.implicits._
-
-import org.typelevel.otel4s.trace.Tracer.Implicits.noop
 
 class MainSuite extends CatsEffectSuite with TestContainerForAll {
   override val containerDef = GenericContainer.Def(
