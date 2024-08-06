@@ -16,16 +16,16 @@
 
 package de.thatscalaguy.skunkcrypt
 
-import cats.syntax.all._
-
+import cats.syntax.all.*
 import skunk.Codec
 import skunk.codec.numeric.safe
 import skunk.data.Type
 
 import java.security.SecureRandom
 import java.util.Base64
+import javax.crypto.Cipher
+import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.{Cipher, SecretKey}
 
 trait CryptCodecs {
   val GCM_IV_LENGTH  = 12
