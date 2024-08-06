@@ -16,19 +16,19 @@
 
 package de.thatscalaguy.skunkcrypt
 
-import cats.syntax.all.*
+import cats.syntax.all._
+
 import skunk.Codec
 import skunk.codec.numeric.safe
 import skunk.data.Type
 
 import java.security.SecureRandom
 import java.util.Base64
-import javax.crypto.Cipher
-import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.{Cipher, SecretKey}
 
 trait CryptCodecs {
-  val GCM_IV_LENGTH = 12
+  val GCM_IV_LENGTH  = 12
   val GCM_TAG_LENGTH = 16
 
   private[skunkcrypt] def encrypt(implicit c: CryptContext): String => String
@@ -40,8 +40,8 @@ trait CryptCodecs {
       value: String
   ) = {
     val secretKey = secretKeys.last
-    val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
-    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val ivSpec    = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
+    val cipher    = Cipher.getInstance("AES/GCM/NoPadding")
     cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec)
     val encryptedBytes = cipher.doFinal(value.getBytes())
     Base64.getEncoder.encodeToString(
@@ -56,8 +56,8 @@ trait CryptCodecs {
       encrypted: String
   ) = {
     val encryptedBytes = Base64.getDecoder.decode(encrypted)
-    val ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
-    val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+    val ivSpec         = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv)
+    val cipher         = Cipher.getInstance("AES/GCM/NoPadding")
     cipher.init(Cipher.DECRYPT_MODE, secretKey, ivSpec)
     new String(cipher.doFinal(encryptedBytes))
   }
@@ -113,7 +113,7 @@ object crypt extends CryptCodecs {
   def decrypt(implicit c: CryptContext) = value =>
     value.split("\\.").toList match {
       case iv :: keyIndex :: encrypted :: Nil =>
-        val ivBytes = Base64.getDecoder.decode(iv)
+        val ivBytes   = Base64.getDecoder.decode(iv)
         val secretKey = c.secretKeys(keyIndex.toInt)
         genDecrypt(ivBytes, secretKey, encrypted)
       case _ => throw new Exception("Invalid input")
@@ -130,7 +130,7 @@ object cryptd extends CryptCodecs {
   def decrypt(implicit c: CryptContext) = value =>
     value.split("\\.").toList match {
       case iv :: keyIndex :: encrypted :: Nil =>
-        val ivBytes = Base64.getDecoder.decode(iv)
+        val ivBytes   = Base64.getDecoder.decode(iv)
         val secretKey = c.secretKeys(keyIndex.toInt)
         genDecrypt(ivBytes, secretKey, encrypted)
       case _ => throw new Exception("Invalid input")

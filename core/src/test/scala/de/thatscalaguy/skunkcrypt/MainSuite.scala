@@ -17,16 +17,16 @@
 package de.thatscalaguy.skunkcrypt
 
 import cats.effect.IO
+
 import com.dimafeng.testcontainers.GenericContainer
 import com.dimafeng.testcontainers.munit.TestContainerForAll
 import munit.CatsEffectSuite
 import org.testcontainers.containers.wait.strategy.Wait
+import skunk._
+import skunk.codec.all._
+import skunk.implicits._
+
 import org.typelevel.otel4s.trace.Tracer.Implicits.noop
-import skunk.*
-import skunk.SSL
-import skunk.Session
-import skunk.codec.all.*
-import skunk.implicits.*
 
 class MainSuite extends CatsEffectSuite with TestContainerForAll {
   override val containerDef = GenericContainer.Def(
@@ -52,13 +52,11 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
 
     session(
       containers.asInstanceOf[GenericContainer].container.getMappedPort(5432)
-    )
-      .use { session =>
-        session.execute(
-          sql"CREATE TABLE test (string TEXT, numbers TEXT)".command
-        )
-      }
-      .void
+    ).use { session =>
+      session.execute(
+        sql"CREATE TABLE test (string TEXT, numbers TEXT)".command
+      )
+    }.void
       .unsafeRunSync()
   }
 
@@ -70,30 +68,29 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
           "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef"
         )
         .get
-      session(database.container.getMappedPort(5432))
-        .use { session =>
-          for {
-            // _ <- session.execute(
-            //   sql"INSERT INTO test (string, numbers) VALUES (${text}, ${crypt.int4})".command
-            // )("hpc3AZ+t1m7mDBf2.e11YUVCQUkPdytj441OjImPhnElN+wSOLL7liXcB+TeRbrsESuGdidbndfu3", 123)
-            _ <- session.execute(
-              sql"INSERT INTO test (string, numbers) VALUES (${cryptd.text}, ${cryptd.int4})".command
-            )(("Hello", 123))
-            _ <- session
-              .execute(
-                sql"SELECT * FROM test".query(cryptd.text ~ text)
-              )
-              .map(_.foreach(println))
+      session(database.container.getMappedPort(5432)).use { session =>
+        for {
+          // _ <- session.execute(
+          //   sql"INSERT INTO test (string, numbers) VALUES (${text}, ${crypt.int4})".command
+          // )("hpc3AZ+t1m7mDBf2.e11YUVCQUkPdytj441OjImPhnElN+wSOLL7liXcB+TeRbrsESuGdidbndfu3", 123)
+          _ <- session.execute(
+            sql"INSERT INTO test (string, numbers) VALUES (${cryptd.text}, ${cryptd.int4})".command
+          )(("Hello", 123))
+          _ <- session
+            .execute(
+              sql"SELECT * FROM test".query(cryptd.text ~ text)
+            )
+            .map(_.foreach(println))
 
-            _ <- session
-              .execute(
-                sql"SELECT * FROM test"
-                  .query(cryptd.text ~ cryptd.int4)
-              )
-              .map(_.foreach(println))
-          } yield ()
+          _ <- session
+            .execute(
+              sql"SELECT * FROM test"
+                .query(cryptd.text ~ cryptd.int4)
+            )
+            .map(_.foreach(println))
+        } yield ()
 
-        }
+      }
         .unsafeRunSync()
     }
   }
