@@ -47,7 +47,7 @@ lazy val core = project
       "org.tpolecat"  %% "skunk-core"                 % V.Skunk      % "provided",
       "org.scalameta" %% "munit"                      % "1.0.4"      % Test,
       "org.typelevel" %% "munit-cats-effect"          % "2.0.0"      % Test,
-      "com.dimafeng"  %% "testcontainers-scala-munit" % "0.41.5"     % Test
+      "com.dimafeng"  %% "testcontainers-scala-munit" % "0.41.8"     % Test
     )
   )
 
