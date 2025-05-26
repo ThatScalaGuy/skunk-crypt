@@ -2,8 +2,8 @@ lazy val V = new {
   val Scala213        = "2.13.16"
   val Scala3          = "3.3.6"
   val Skunk           = "1.0.0-M10"
-  val Cats            = "2.12.0"
-  val CatsEffect      = "3.5.7"
+  val Cats            = "2.13.0"
+  val CatsEffect      = "3.6.1"
   val Munit           = "1.0.0"
   val MunitCatsEffect = "2.0.0"
   val Testcontainers  = "0.41.4"
@@ -45,9 +45,9 @@ lazy val core = project
       "org.typelevel" %% "cats-core"                  % V.Cats       % "provided",
       "org.typelevel" %% "cats-effect"                % V.CatsEffect % "provided",
       "org.tpolecat"  %% "skunk-core"                 % V.Skunk      % "provided",
-      "org.scalameta" %% "munit"                      % "1.0.4"      % Test,
-      "org.typelevel" %% "munit-cats-effect"          % "2.0.0"      % Test,
-      "com.dimafeng"  %% "testcontainers-scala-munit" % "0.41.5"     % Test
+      "org.scalameta" %% "munit"                      % "1.1.1"      % Test,
+      "org.typelevel" %% "munit-cats-effect"          % "2.1.0"      % Test,
+      "com.dimafeng"  %% "testcontainers-scala-munit" % "0.41.8"     % Test
     )
   )
 
