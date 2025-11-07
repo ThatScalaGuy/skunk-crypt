@@ -16,7 +16,7 @@ ThisBuild / organization     := "de.thatscalaguy"
 ThisBuild / organizationName := "ThatScalaGuy"
 ThisBuild / startYear        := Some(2024)
 ThisBuild / licenses         := Seq(License.Apache2)
-ThisBuild / developers := List(
+ThisBuild / developers       := List(
   // your GitHub handle and name
   tlGitHubDev("ThatScalaGuy", "Sven Herrmann")
 )
