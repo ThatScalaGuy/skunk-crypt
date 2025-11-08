@@ -1,9 +1,9 @@
 lazy val V = new {
-  val Scala213        = "2.13.16"
-  val Scala3          = "3.3.6"
+  val Scala213        = "2.13.17"
+  val Scala3          = "3.3.7"
   val Skunk           = "1.0.0-M10"
   val Cats            = "2.13.0"
-  val CatsEffect      = "3.6.1"
+  val CatsEffect      = "3.6.3"
   val Munit           = "1.0.0"
   val MunitCatsEffect = "2.0.0"
   val Testcontainers  = "0.41.4"
