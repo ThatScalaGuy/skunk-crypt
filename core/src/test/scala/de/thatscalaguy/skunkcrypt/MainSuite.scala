@@ -24,7 +24,6 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.typelevel.otel4s.metrics.Meter
 import org.typelevel.otel4s.trace.Tracer
 import skunk.*
-import skunk.codec.all.*
 import skunk.implicits.*
 
 class MainSuite extends CatsEffectSuite with TestContainerForAll {
@@ -49,50 +48,55 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
     .withSSL(SSL.None)
     .single
 
-  override def afterContainersStart(containers: Containers): Unit = {
+  val keyHex                   = "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef"
+  implicit val c: CryptContext =
+    CryptContext.keysFromHex(keyHex, keyHex).fold(e => fail(e), identity)
 
+  override def afterContainersStart(containers: Containers): Unit = {
     session(
       containers.asInstanceOf[GenericContainer].container.getMappedPort(5432)
     ).use { session =>
       session.execute(
         sql"CREATE TABLE test (string TEXT, numbers TEXT)".command
-      )
+      ) *>
+        session.execute(
+          sql"CREATE TABLE types (id TEXT, flag TEXT, amount TEXT, at TEXT)".command
+        )
     }.void
       .unsafeRunSync()
   }
 
-  test("Main should exit succesfully") {
+  test("round-trips text and int columns through Postgres") {
     withContainers { case database: GenericContainer =>
-      implicit val c = CryptContext
-        .keysFromHex(
-          "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef",
-          "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef"
-        )
-        .get
       session(database.container.getMappedPort(5432)).use { session =>
         for {
-          // _ <- session.execute(
-          //   sql"INSERT INTO test (string, numbers) VALUES (${text}, ${crypt.int4})".command
-          // )("hpc3AZ+t1m7mDBf2.e11YUVCQUkPdytj441OjImPhnElN+wSOLL7liXcB+TeRbrsESuGdidbndfu3", 123)
           _ <- session.execute(
             sql"INSERT INTO test (string, numbers) VALUES (${cryptd.text}, ${cryptd.int4})".command
           )(("Hello", 123))
-          _ <- session
-            .execute(
-              sql"SELECT * FROM test".query(cryptd.text ~ text)
-            )
-            .map(_.foreach(println))
+          rows <- session.execute(
+            sql"SELECT string, numbers FROM test".query(cryptd.text ~ cryptd.int4)
+          )
+        } yield assertEquals(rows, List("Hello" -> 123))
+      }.unsafeRunSync()
+    }
+  }
 
-          _ <- session
-            .execute(
-              sql"SELECT * FROM test"
-                .query(cryptd.text ~ cryptd.int4)
-            )
-            .map(_.foreach(println))
-        } yield ()
-
-      }
-        .unsafeRunSync()
+  test("round-trips uuid, bool, numeric and timestamptz through Postgres") {
+    withContainers { case database: GenericContainer =>
+      val id     = java.util.UUID.randomUUID()
+      val amount = BigDecimal("99.95")
+      val at     = java.time.OffsetDateTime.parse("2026-06-08T13:00:00+02:00")
+      session(database.container.getMappedPort(5432)).use { session =>
+        for {
+          _ <- session.execute(
+            sql"INSERT INTO types (id, flag, amount, at) VALUES (${crypt.uuid}, ${crypt.bool}, ${crypt.numeric}, ${crypt.timestamptz})".command
+          )((id, true, amount, at))
+          rows <- session.execute(
+            sql"SELECT id, flag, amount, at FROM types"
+              .query(crypt.uuid ~ crypt.bool ~ crypt.numeric ~ crypt.timestamptz)
+          )
+        } yield assertEquals(rows, List((((id, true), amount), at)))
+      }.unsafeRunSync()
     }
   }
 
