@@ -244,6 +244,22 @@ start a PostgreSQL instance.
 Full guide and API reference: <https://thatscalaguy.github.io/skunk-crypt/> ·
 [Scaladoc](https://javadoc.io/doc/de.thatscalaguy/skunk-crypt_3)
 
+## 💼 Commercial Support
+
+skunk-crypt is built and maintained by **[ThatScalaGuy](https://www.thatscalaguy.de)** —
+_software that's correct by construction._
+
+Sven Herrmann helps teams ship dependable systems with functional programming on
+Scala 3 and the Typelevel stack (Cats Effect, fs2, http4s, Skunk). Available for:
+
+- 🧩 **Functional backends** — production services your team can trust for years
+- 📊 **Data science & ML** — analytics and pipelines with Spark and Scala/Python
+- 📝 **Requirements engineering** — turning ambiguous ideas into clear specs
+- 🎓 **Training** — Scala 3, Cats Effect, fs2 streaming, Gleam, and AI agents
+
+Need encryption, Postgres, or Typelevel help on your project?
+**Get in touch at [thatscalaguy.de](https://www.thatscalaguy.de).**
+
 ## 🤝 Contributing
 
 Issues and pull requests are welcome at
