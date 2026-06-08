@@ -46,19 +46,19 @@ _Plaintext in your application. Ciphertext in your database. Encryption is just 
 **sbt**
 
 ```scala
-libraryDependencies += "de.thatscalaguy" %% "skunk-crypt" % "0.0.1"
+libraryDependencies += "de.thatscalaguy" %% "skunk-crypt" % "1.0.0"
 ```
 
 **Mill**
 
 ```scala
-ivy"de.thatscalaguy::skunk-crypt:0.0.1"
+ivy"de.thatscalaguy::skunk-crypt:1.0.0"
 ```
 
 **scala-cli**
 
 ```scala
-//> using dep de.thatscalaguy::skunk-crypt:0.0.1
+//> using dep de.thatscalaguy::skunk-crypt:1.0.0
 ```
 
 You also need Skunk itself on the classpath (it is a `provided` dependency):
