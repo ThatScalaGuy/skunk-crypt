@@ -16,15 +16,12 @@
 
 package de.thatscalaguy.skunkcrypt
 
-/** Errors raised while decrypting a column value. They extend
-  * [[RuntimeException]] so they surface through Skunk's synchronous codec path
-  * and can be caught by consumers.
+/** Errors raised while decrypting a column value. They extend `RuntimeException` so they surface through Skunk's synchronous codec path and can be caught by
+  * consumers.
   */
-sealed abstract class CryptError(message: String, cause: Throwable)
-    extends RuntimeException(message, cause)
+sealed abstract class CryptError(message: String, cause: Throwable) extends RuntimeException(message, cause)
 
-/** The stored value does not match the expected `<iv>.<keyIndex>.<data>` layout
-  * (e.g. legacy plaintext or data written by a different library).
+/** The stored value does not match the expected `<iv>.<keyIndex>.<data>` layout (e.g. legacy plaintext or data written by a different library).
   */
 final class MalformedCiphertext
     extends CryptError(
@@ -32,8 +29,6 @@ final class MalformedCiphertext
       null
     )
 
-/** The value was well-formed but could not be decrypted — an unknown key
-  * index, a wrong key, or a failed GCM authentication tag.
+/** The value was well-formed but could not be decrypted — an unknown key index, a wrong key, or a failed GCM authentication tag.
   */
-final class DecryptionFailure(cause: Throwable)
-    extends CryptError(s"Decryption failed: ${cause.getMessage}", cause)
+final class DecryptionFailure(cause: Throwable) extends CryptError(s"Decryption failed: ${cause.getMessage}", cause)

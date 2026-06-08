@@ -26,7 +26,7 @@ import java.util.UUID
 
 class CryptCodecsSuite extends FunSuite {
 
-  val keyHex = "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef"
+  val keyHex                   = "c0e5c54c2a40c95b40d6e837a9c147d4cd7cadeccc555e679efed48f726a5fef"
   implicit val c: CryptContext =
     CryptContext.keyFromHex(keyHex).fold(e => fail(e), identity)
 
@@ -50,7 +50,7 @@ class CryptCodecsSuite extends FunSuite {
 
   test("key validation: wrong key length is rejected") {
     assert(CryptContext.keyFromHex("ab" * 30).isLeft) // 30 bytes
-    assert(CryptContext.keyFromHex("abc").isLeft)      // odd length
+    assert(CryptContext.keyFromHex("abc").isLeft)     // odd length
   }
 
   test("key validation: empty key list is rejected") {
