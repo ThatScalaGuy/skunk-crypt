@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="Typelevel Laika + Helium Theme" />
-  <title>skunk-crypt</title>
+  <title>skunk-crypt 🦨🔐</title>
   
   <meta name="author" content="Sven Herrmann"/>
   
@@ -67,7 +67,7 @@
   </div>
 
   <ul class="nav-list">
-    <li class="level1 active nav-leaf"><a href="#">skunk-crypt</a></li>
+    <li class="level1 active nav-leaf"><a href="#">skunk-crypt 🦨🔐</a></li>
   </ul>
 
 </nav>
@@ -76,10 +76,19 @@
 
       
 <nav id="page-nav">
-  <p class="header"><a href="#">skunk-crypt</a></p>
+  <p class="header"><a href="#">skunk-crypt 🦨🔐</a></p>
 
   <ul class="nav-list">
-    <li class="level1 nav-leaf"><a href="#usage">Usage</a></li>
+    <li class="level1 nav-leaf"><a href="#highlights">Highlights</a></li>
+    <li class="level1 nav-leaf"><a href="#installation">Installation</a></li>
+    <li class="level1 nav-node"><a href="#quick-start">Quick start</a></li>
+    <li class="level2 nav-leaf"><a href="#_1-generate-a-key">1. Generate a key</a></li>
+    <li class="level2 nav-leaf"><a href="#_2-build-a-validated-cryptcontext">2. Build a validated <code>CryptContext</code></a></li>
+    <li class="level2 nav-leaf"><a href="#_3-use-the-codecs">3. Use the codecs</a></li>
+    <li class="level1 nav-leaf"><a href="#crypt-vs-cryptd"><code>crypt</code> vs <code>cryptd</code></a></li>
+    <li class="level1 nav-leaf"><a href="#key-rotation">Key rotation</a></li>
+    <li class="level1 nav-leaf"><a href="#supported-types">Supported types</a></li>
+    <li class="level1 nav-leaf"><a href="#errors">Errors</a></li>
   </ul>
 
   <p class="footer"></p>
@@ -88,14 +97,96 @@
 
       <main class="content">
 
-        <h1 id="skunk-crypt" class="title">skunk-crypt</h1>
+        <h1 id="skunk-crypt" class="title">skunk-crypt 🦨🔐</h1>
+        <p>Transparent, application-level <strong>AES-256-GCM</strong> encryption for PostgreSQL columns,
+        exposed as drop-in <a href="https://typelevel.org/skunk/">Skunk</a> codecs. Your data is plain
+        text in the application and cipher text in the database — encryption is just another
+        codec.</p>
         
-        <h3 id="usage" class="section"><a class="anchor-link left" href="#usage"><i class="icofont-laika link">&#xef71;</i></a>Usage</h3>
-        <p>This library is currently available for Scala binary versions 2.13 and 3.1.</p>
-        <p>To use the latest version, include the following in your <code>build.sbt</code>:</p>
-        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> ++= </span><span class="type-name">Seq</span><span>(
-  </span><span class="string-literal">&quot;de.thatscalaguy&quot;</span><span> %% </span><span class="string-literal">&quot;skunk-crypt&quot;</span><span> % </span><span class="string-literal">&quot;0.0.2&quot;</span><span>
+        <h2 id="highlights" class="section"><a class="anchor-link left" href="#highlights"><i class="icofont-laika link">&#xef71;</i></a>Highlights</h2>
+        <ul>
+          <li>🔒 <strong>AES-256-GCM</strong> authenticated encryption — confidential <em>and</em> tamper-evident.</li>
+          <li>🧩 <strong>Drop-in codecs</strong> — swap <code>text</code>/<code>int4</code>/… for <code>crypt.text</code>/<code>crypt.int4</code>.</li>
+          <li>🔍 <strong>Deterministic mode</strong> for equality search, using a synthetic IV (AES-GCM-SIV style).</li>
+          <li>🔑 <strong>Built-in key rotation</strong> — encrypt with the newest key, decrypt with any.</li>
+          <li>🧬 <strong>Rich types</strong> — text, ints, floats, <code>Boolean</code>, <code>UUID</code>, <code>BigDecimal</code>, dates and timestamps.</li>
+        </ul>
+        
+        <h2 id="installation" class="section"><a class="anchor-link left" href="#installation"><i class="icofont-laika link">&#xef71;</i></a>Installation</h2>
+        <p>This library is published for Scala 2.13 and 3.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;de.thatscalaguy&quot;</span><span> %% </span><span class="string-literal">&quot;skunk-crypt&quot;</span><span> % </span><span class="string-literal">&quot;0.0.2&quot;</span></code></pre>
+        <p>Skunk, Cats and Cats Effect are <code>provided</code> dependencies, so skunk-crypt uses the
+        versions already on your classpath. Make sure Skunk itself is present:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="identifier">libraryDependencies</span><span> += </span><span class="string-literal">&quot;org.tpolecat&quot;</span><span> %% </span><span class="string-literal">&quot;skunk-core&quot;</span><span> % </span><span class="string-literal">&quot;1.0.0&quot;</span></code></pre>
+        
+        <h2 id="quick-start" class="section"><a class="anchor-link left" href="#quick-start"><i class="icofont-laika link">&#xef71;</i></a>Quick start</h2>
+        
+        <h3 id="_1-generate-a-key" class="section"><a class="anchor-link left" href="#_1-generate-a-key"><i class="icofont-laika link">&#xef71;</i></a>1. Generate a key</h3>
+        <p>Keys are raw AES keys, hex-encoded — 64 hex characters for AES-256 (32 or 48 are
+        also accepted, for AES-128/192):</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span>openssl rand -hex </span><span class="number-literal">32</span></code></pre>
+        
+        <h3 id="_2-build-a-validated-cryptcontext" class="section"><a class="anchor-link left" href="#_2-build-a-validated-cryptcontext"><i class="icofont-laika link">&#xef71;</i></a>2. Build a validated <code>CryptContext</code></h3>
+        <p>Construction returns an <code>Either</code>, so a malformed or wrong-length key fails fast with
+        a reason instead of surfacing later inside a query:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">de</span><span>.</span><span class="identifier">thatscalaguy</span><span>.</span><span class="identifier">skunkcrypt</span><span>.*
+
+</span><span class="identifier">given</span><span> </span><span class="type-name">CryptContext</span><span> =
+  </span><span class="type-name">CryptContext</span><span>
+    .</span><span class="identifier">keysFromHex</span><span>(</span><span class="identifier">sys</span><span>.</span><span class="identifier">env</span><span>(</span><span class="string-literal">&quot;DB_ENC_KEY&quot;</span><span>))
+    .</span><span class="identifier">fold</span><span>(</span><span class="identifier">reason</span><span> =&gt; </span><span class="identifier">sys</span><span>.</span><span class="identifier">error</span><span>(</span><span class="string-literal">s&quot;Invalid encryption key: </span><span class="substitution">$reason</span><span class="string-literal">&quot;</span><span>), </span><span class="identifier">identity</span><span>)</span></code></pre>
+        
+        <h3 id="_3-use-the-codecs" class="section"><a class="anchor-link left" href="#_3-use-the-codecs"><i class="icofont-laika link">&#xef71;</i></a>3. Use the codecs</h3>
+        <p>Encrypted columns are stored as <code>TEXT</code>, regardless of their logical type:</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">CREATE</span><span> </span><span class="keyword">TABLE</span><span> </span><span class="identifier">users</span><span> (
+  </span><span class="identifier">email</span><span> </span><span class="type-name">TEXT</span><span>,
+  </span><span class="identifier">age</span><span>   </span><span class="type-name">TEXT</span><span>
 )</span></code></pre>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">skunk</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">skunk</span><span>.</span><span class="identifier">implicits</span><span>.*
+</span><span class="keyword">import</span><span> </span><span class="identifier">de</span><span>.</span><span class="identifier">thatscalaguy</span><span>.</span><span class="identifier">skunkcrypt</span><span>.*
+
+</span><span class="comment">// non-deterministic for `age`, deterministic (searchable) for `email`
+</span><span class="keyword">val</span><span> </span><span class="identifier">insert</span><span>: </span><span class="type-name">Command</span><span>[(</span><span class="type-name">String</span><span>, </span><span class="type-name">Int</span><span>)] =
+  </span><span class="string-literal">sql&quot;INSERT INTO users (email, age) VALUES (</span><span class="substitution">${cryptd.text}</span><span class="string-literal">, </span><span class="substitution">${crypt.int4}</span><span class="string-literal">)&quot;</span><span>.</span><span class="identifier">command</span><span>
+
+</span><span class="keyword">val</span><span> </span><span class="identifier">all</span><span>: </span><span class="type-name">Query</span><span>[</span><span class="type-name">Void</span><span>, (</span><span class="type-name">String</span><span>, </span><span class="type-name">Int</span><span>)] =
+  </span><span class="string-literal">sql&quot;SELECT email, age FROM users&quot;</span><span>.</span><span class="identifier">query</span><span>(</span><span class="identifier">cryptd</span><span>.</span><span class="identifier">text</span><span> ~ </span><span class="identifier">crypt</span><span>.</span><span class="identifier">int4</span><span>)</span></code></pre>
+        
+        <h2 id="crypt-vs-cryptd" class="section"><a class="anchor-link left" href="#crypt-vs-cryptd"><i class="icofont-laika link">&#xef71;</i></a><code>crypt</code> vs <code>cryptd</code></h2>
+        <p>Both objects expose the same codecs.</p>
+        <ul>
+          <li><strong><code>crypt</code></strong> — non-deterministic (random IV). The safe default; equal values are
+          indistinguishable in the database. Use it for anything you don&#39;t query by.</li>
+          <li><strong><code>cryptd</code></strong> — deterministic; equal values encrypt identically (via a synthetic
+          IV derived from the plain text), so the column can be matched with <code>WHERE x = ?</code>.
+          By design it reveals which rows share the same value.</li>
+        </ul>
+        
+        <h2 id="key-rotation" class="section"><a class="anchor-link left" href="#key-rotation"><i class="icofont-laika link">&#xef71;</i></a>Key rotation</h2>
+        <p><code>keysFromHex</code> accepts several keys. Encryption uses the <strong>last</strong> key; the index of
+        the key used is embedded in each stored value, so older keys keep decrypting older
+        rows. Only ever <strong>append</strong> keys — never reorder or remove them.</p>
+        <pre class="keep-together pdf epub"><code class="nohighlight"><span class="keyword">import</span><span> </span><span class="identifier">de</span><span>.</span><span class="identifier">thatscalaguy</span><span>.</span><span class="identifier">skunkcrypt</span><span>.*
+
+</span><span class="identifier">given</span><span> </span><span class="type-name">CryptContext</span><span> =
+  </span><span class="type-name">CryptContext</span><span>.</span><span class="identifier">keysFromHex</span><span>(</span><span class="identifier">oldKeyHex</span><span>, </span><span class="identifier">newKeyHex</span><span>).</span><span class="identifier">fold</span><span>(</span><span class="identifier">sys</span><span>.</span><span class="identifier">error</span><span>, </span><span class="identifier">identity</span><span>)</span></code></pre>
+        
+        <h2 id="supported-types" class="section"><a class="anchor-link left" href="#supported-types"><i class="icofont-laika link">&#xef71;</i></a>Supported types</h2>
+        <p><code>text</code>, <code>int2</code>, <code>int4</code>, <code>int8</code>, <code>float4</code>, <code>float8</code>, <code>bool</code>, <code>uuid</code>, <code>numeric</code>
+        (<code>BigDecimal</code>), <code>date</code> (<code>LocalDate</code>), <code>timestamp</code> (<code>LocalDateTime</code>) and
+        <code>timestamptz</code> (<code>OffsetDateTime</code>).</p>
+        
+        <h2 id="errors" class="section"><a class="anchor-link left" href="#errors"><i class="icofont-laika link">&#xef71;</i></a>Errors</h2>
+        <p>Decryption raises a typed <code>CryptError</code>:</p>
+        <ul>
+          <li><code>MalformedCiphertext</code> — the stored value is not in the expected
+          <code>iv.keyIndex.data</code> format.</li>
+          <li><code>DecryptionFailure</code> — wrong key, unknown key index, or a failed authentication tag.</li>
+        </ul>
+        <p>See the <a href="https://github.com/ThatScalaGuy/skunk-crypt">README</a> for the full security
+        model and the <a href="https://javadoc.io/doc/de.thatscalaguy/skunk-crypt_3">Scaladoc</a> for
+        the API reference.</p>
 
         
 <hr class="footer-rule"/>
