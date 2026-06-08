@@ -25,3 +25,4 @@ metals.sbt
 node_modules/
 
 .PRIVATE.md
+.DS_Store
