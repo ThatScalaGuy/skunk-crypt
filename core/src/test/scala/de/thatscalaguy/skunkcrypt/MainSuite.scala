@@ -21,12 +21,16 @@ import com.dimafeng.testcontainers.GenericContainer
 import com.dimafeng.testcontainers.munit.TestContainerForAll
 import munit.CatsEffectSuite
 import org.testcontainers.containers.wait.strategy.Wait
-import org.typelevel.otel4s.trace.Tracer.Implicits.noop
+import org.typelevel.otel4s.metrics.Meter
+import org.typelevel.otel4s.trace.Tracer
 import skunk.*
 import skunk.codec.all.*
 import skunk.implicits.*
 
 class MainSuite extends CatsEffectSuite with TestContainerForAll {
+  implicit val tracer: Tracer[IO] = Tracer.Implicits.noop
+  implicit val meter: Meter[IO]   = Meter.Implicits.noop
+
   override val containerDef = GenericContainer.Def(
     dockerImage = "postgres:16",
     env = Map("POSTGRES_PASSWORD" -> "postgres"),
@@ -37,14 +41,13 @@ class MainSuite extends CatsEffectSuite with TestContainerForAll {
   )
 
   def session(port: Int) = Session
-    .single[IO](
-      host = "localhost",
-      port = port,
-      user = "postgres",
-      database = "postgres",
-      password = Some("postgres"),
-      ssl = SSL.None
-    )
+    .Builder[IO]
+    .withHost("localhost")
+    .withPort(port)
+    .withUserAndPassword("postgres", "postgres")
+    .withDatabase("postgres")
+    .withSSL(SSL.None)
+    .single
 
   override def afterContainersStart(containers: Containers): Unit = {
 

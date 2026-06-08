@@ -1,12 +1,12 @@
 lazy val V = new {
-  val Scala213        = "2.13.16"
-  val Scala3          = "3.3.6"
-  val Skunk           = "1.0.0-M10"
+  val Scala213        = "2.13.18"
+  val Scala3          = "3.3.7"
+  val Skunk           = "1.0.0"
   val Cats            = "2.13.0"
-  val CatsEffect      = "3.6.1"
-  val Munit           = "1.0.0"
-  val MunitCatsEffect = "2.0.0"
-  val Testcontainers  = "0.41.4"
+  val CatsEffect      = "3.7.0"
+  val Munit           = "1.1.1"
+  val MunitCatsEffect = "2.1.0"
+  val Testcontainers  = "0.43.0"
 }
 
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
@@ -20,9 +20,6 @@ ThisBuild / developers       := List(
   // your GitHub handle and name
   tlGitHubDev("ThatScalaGuy", "Sven Herrmann")
 )
-
-// publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
-ThisBuild / tlSonatypeUseLegacyHost := false
 
 // publish website from this branch
 ThisBuild / tlSitePublishBranch := Some("main")
@@ -42,12 +39,12 @@ lazy val core = project
   .settings(
     name := "skunk-crypt",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core"                  % V.Cats       % "provided",
-      "org.typelevel" %% "cats-effect"                % V.CatsEffect % "provided",
-      "org.tpolecat"  %% "skunk-core"                 % V.Skunk      % "provided",
-      "org.scalameta" %% "munit"                      % "1.1.1"      % Test,
-      "org.typelevel" %% "munit-cats-effect"          % "2.1.0"      % Test,
-      "com.dimafeng"  %% "testcontainers-scala-munit" % "0.41.8"     % Test
+      "org.typelevel" %% "cats-core"                  % V.Cats            % "provided",
+      "org.typelevel" %% "cats-effect"                % V.CatsEffect      % "provided",
+      "org.tpolecat"  %% "skunk-core"                 % V.Skunk           % "provided",
+      "org.scalameta" %% "munit"                      % V.Munit           % Test,
+      "org.typelevel" %% "munit-cats-effect"          % V.MunitCatsEffect % Test,
+      "com.dimafeng"  %% "testcontainers-scala-munit" % V.Testcontainers  % Test
     )
   )
 
