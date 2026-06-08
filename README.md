@@ -4,7 +4,7 @@
 
 **Transparent, application-level AES-GCM encryption for PostgreSQL columns — as drop-in [Skunk](https://typelevel.org/skunk/) codecs.**
 
-*Plaintext in your application. Ciphertext in your database. Encryption is just another codec.*
+_Plaintext in your application. Ciphertext in your database. Encryption is just another codec._
 
 [![Maven Central](https://img.shields.io/maven-central/v/de.thatscalaguy/skunk-crypt_3?style=flat-square&logo=apachemaven&logoColor=white&label=Maven%20Central&color=blue)](https://central.sonatype.com/artifact/de.thatscalaguy/skunk-crypt_3)
 [![Cats Friendly](https://typelevel.org/cats/img/cats-badge-tiny.png)](https://typelevel.org/cats/#cats-friendly-libraries)
@@ -19,7 +19,7 @@
 
 ## ✨ Highlights
 
-- 🔒 **AES-256-GCM** authenticated encryption — values are confidential *and* tamper-evident.
+- 🔒 **AES-256-GCM** authenticated encryption — values are confidential _and_ tamper-evident.
 - 🧩 **Drop-in Skunk codecs** — swap `text`/`int4`/… for `crypt.text`/`crypt.int4`; the rest of your query is unchanged.
 - 🔍 **Deterministic mode** for equality search, using a synthetic IV (AES-GCM-SIV style) — searchable without the fixed-IV footgun.
 - 🔑 **Built-in key rotation** — encrypt with the newest key, transparently decrypt with any previous one.
@@ -29,12 +29,12 @@
 
 ## 🧩 Compatibility
 
-| Dependency  | Version                          |
-| ----------- | -------------------------------- |
-| Scala       | 2.13, 3.3                        |
-| Skunk       | 1.0                              |
-| Cats Effect | 3.x                              |
-| JDK         | 8+                               |
+| Dependency  | Version                            |
+| ----------- | ---------------------------------- |
+| Scala       | 2.13, 3.3                          |
+| Skunk       | 1.0                                |
+| Cats Effect | 3.x                                |
+| JDK         | 8+                                 |
 | PostgreSQL  | any — encrypted columns are `TEXT` |
 
 > Skunk, Cats and Cats Effect are declared as `provided` dependencies, so
@@ -161,8 +161,8 @@ val byEmail: Query[String, Int] =
 Both objects expose the same set of codecs; pick per column based on whether you
 need to query by the encrypted value.
 
-| Object   | Mode              | Same input → same cipher text? | Use it for                                  |
-| -------- | ----------------- | ------------------------------ | ------------------------------------------- |
+| Object   | Mode              | Same input → same cipher text? | Use it for                                   |
+| -------- | ----------------- | ------------------------------ | -------------------------------------------- |
 | `crypt`  | Non-deterministic | No (random IV)                 | The safe default — anything you don't search |
 | `cryptd` | Deterministic     | Yes (synthetic IV)             | Columns you need to match with `WHERE x = ?` |
 
@@ -186,19 +186,19 @@ remove them, or the embedded indices of existing rows will no longer match.
 
 Available on both `crypt` and `cryptd`:
 
-| Codec         | Scala type             |
-| ------------- | ---------------------- |
-| `text`        | `String`               |
-| `int2`        | `Short`                |
-| `int4`        | `Int`                  |
-| `int8`        | `Long`                 |
-| `float4`      | `Float`                |
-| `float8`      | `Double`               |
-| `bool`        | `Boolean`              |
-| `uuid`        | `java.util.UUID`       |
-| `numeric`     | `BigDecimal`           |
-| `date`        | `java.time.LocalDate`  |
-| `timestamp`   | `java.time.LocalDateTime` |
+| Codec         | Scala type                 |
+| ------------- | -------------------------- |
+| `text`        | `String`                   |
+| `int2`        | `Short`                    |
+| `int4`        | `Int`                      |
+| `int8`        | `Long`                     |
+| `float4`      | `Float`                    |
+| `float8`      | `Double`                   |
+| `bool`        | `Boolean`                  |
+| `uuid`        | `java.util.UUID`           |
+| `numeric`     | `BigDecimal`               |
+| `date`        | `java.time.LocalDate`      |
+| `timestamp`   | `java.time.LocalDateTime`  |
 | `timestamptz` | `java.time.OffsetDateTime` |
 
 ## 🛡️ Security
@@ -214,7 +214,7 @@ Available on both `crypt` and `cryptd`:
   AES-GCM-SIV), so equal values encrypt identically and stay searchable while
   distinct values still get distinct keystreams. By design it reveals **which rows
   share the same value** — only use it where that is acceptable.
-- skunk-crypt encrypts column *values*; it does not hide column names, row counts,
+- skunk-crypt encrypts column _values_; it does not hide column names, row counts,
   or access patterns, and it is not a substitute for transport (TLS) or
   at-rest disk encryption.
 
@@ -224,10 +224,10 @@ Key construction returns `Either[String, CryptContext]` — a bad key never reac
 query. Decryption raises a typed `CryptError` (both subtypes extend
 `RuntimeException`, so they propagate through Skunk's codec path):
 
-| Error                | Meaning                                                        |
-| -------------------- | ------------------------------------------------------------- |
+| Error                 | Meaning                                                           |
+| --------------------- | ----------------------------------------------------------------- |
 | `MalformedCiphertext` | The stored value isn't `iv.keyIndex.data` (e.g. legacy plaintext) |
-| `DecryptionFailure`   | Wrong key, unknown key index, or a failed authentication tag  |
+| `DecryptionFailure`   | Wrong key, unknown key index, or a failed authentication tag      |
 
 ## 🧪 Testing
 
@@ -246,18 +246,9 @@ Full guide and API reference: <https://thatscalaguy.github.io/skunk-crypt/> ·
 
 ## 💼 Commercial Support
 
-skunk-crypt is built and maintained by **[ThatScalaGuy](https://www.thatscalaguy.de)** —
-_software that's correct by construction._
+skunk-crypt is built and maintained by **[ThatScalaGuy](https://www.thatscalaguy.de)**
 
-Sven Herrmann helps teams ship dependable systems with functional programming on
-Scala 3 and the Typelevel stack (Cats Effect, fs2, http4s, Skunk). Available for:
-
-- 🧩 **Functional backends** — production services your team can trust for years
-- 📊 **Data science & ML** — analytics and pipelines with Spark and Scala/Python
-- 📝 **Requirements engineering** — turning ambiguous ideas into clear specs
-- 🎓 **Training** — Scala 3, Cats Effect, fs2 streaming, Gleam, and AI agents
-
-Need encryption, Postgres, or Typelevel help on your project?
+Need extended or help on your project?
 **Get in touch at [thatscalaguy.de](https://www.thatscalaguy.de).**
 
 ## 🤝 Contributing
