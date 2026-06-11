@@ -4,9 +4,9 @@ lazy val V = new {
   val Skunk           = "1.0.0"
   val Cats            = "2.13.0"
   val CatsEffect      = "3.7.0"
-  val Munit           = "1.1.1"
-  val MunitCatsEffect = "2.1.0"
-  val Testcontainers  = "0.43.0"
+  val Munit           = "1.3.2"
+  val MunitCatsEffect = "2.2.0"
+  val Testcontainers  = "0.43.6"
 }
 
 // https://typelevel.org/sbt-typelevel/faq.html#what-is-a-base-version-anyway
